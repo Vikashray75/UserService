@@ -5,11 +5,15 @@ import dev.vikash.UserService.Model.Role;
 import dev.vikash.UserService.Model.User;
 import dev.vikash.UserService.Repository.RoleRepository;
 import dev.vikash.UserService.Repository.UserRepository;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+@Getter
+@Setter
 public class UserService {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
