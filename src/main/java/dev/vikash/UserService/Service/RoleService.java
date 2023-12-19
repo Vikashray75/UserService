@@ -2,7 +2,9 @@ package dev.vikash.UserService.Service;
 
 import dev.vikash.UserService.Model.Role;
 import dev.vikash.UserService.Repository.RoleRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class RoleService {
     private RoleRepository roleRepository;
 
