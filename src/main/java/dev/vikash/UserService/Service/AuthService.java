@@ -61,6 +61,7 @@ public class AuthService {
         {
             throw new InvalidCredential("Invalid Credential");
         }
+
             //Token Generation
             String token= RandomStringUtils.randomAlphanumeric(30);
 
@@ -83,6 +84,7 @@ public class AuthService {
 
     }
 
+
     public UserDto signUp(String email,String password)
     {
        User user=new User();
@@ -91,5 +93,19 @@ public class AuthService {
         user.setPassword(bCryptPasswordEncoder.encode(password));
         User savedUser = userRepository.save(user);
         return UserDto.from(savedUser);
+    }
+
+    public ResponseEntity<Void> logout(String token,Long userId)
+    {
+        Optional<Session> sessionOptional=sessionRepository.findByTokenAndUser_id(token,userId);
+        if(sessionOptional.isEmpty())
+        {
+            return null;
+        }
+
+        Session session=sessionOptional.get();
+        session.setSessionStatus(SessionStatus.ENDED);
+        sessionRepository.save(session);
+        return ResponseEntity.ok().build();
     }
 }

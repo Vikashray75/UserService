@@ -3,13 +3,13 @@ package dev.vikash.UserService.Controller;
 import dev.vikash.UserService.DTO.LoginRequestDto;
 import dev.vikash.UserService.DTO.SignUpRequestDto;
 import dev.vikash.UserService.DTO.UserDto;
+import dev.vikash.UserService.Model.Session;
 import dev.vikash.UserService.Service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,5 +31,18 @@ public class AuthController {
         UserDto userDto=authService.signUp(request.getEmail(),request.getPassword());
         return new ResponseEntity<>(userDto, HttpStatus.OK);
 
+    }
+    @GetMapping("/session")
+    public ResponseEntity<List<Session>> getAllSession()
+    {
+        return authService.getAllSession();
+
+
+    }
+
+    @PostMapping("/logout/{id}")
+    public ResponseEntity<Void> logout(@PathVariable("id") Long UserId,@RequestHeader("token") String token)
+    {
+        return authService.logout(token,UserId);
     }
 }

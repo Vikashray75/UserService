@@ -12,7 +12,7 @@ public class InvalidCredential extends RuntimeException{
         super(message, cause);
     }
 
-    public InvalidCredential(Throwable cause) {
-        super(cause);
-    }
+//    public InvalidCredential(Throwable cause) {
+//        super(cause);
+  //  }
 }
