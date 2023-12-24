@@ -3,7 +3,9 @@ package dev.vikash.UserService.Controller;
 import dev.vikash.UserService.DTO.LoginRequestDto;
 import dev.vikash.UserService.DTO.SignUpRequestDto;
 import dev.vikash.UserService.DTO.UserDto;
+import dev.vikash.UserService.DTO.ValidateTokenRequestDto;
 import dev.vikash.UserService.Model.Session;
+import dev.vikash.UserService.Model.SessionStatus;
 import dev.vikash.UserService.Service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +46,11 @@ public class AuthController {
     public ResponseEntity<Void> logout(@PathVariable("id") Long UserId,@RequestHeader("token") String token)
     {
         return authService.logout(token,UserId);
+    }
+    @PostMapping("/Validate")
+    public ResponseEntity<SessionStatus> validateToken(ValidateTokenRequestDto request)
+    {
+        SessionStatus sessionStatus=authService.validate(request.getToken(),request.getUserId());
+        return new ResponseEntity<>(sessionStatus,HttpStatus.OK);
     }
 }

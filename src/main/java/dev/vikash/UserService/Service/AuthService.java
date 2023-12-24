@@ -3,6 +3,7 @@ package dev.vikash.UserService.Service;
 import dev.vikash.UserService.DTO.SignUpRequestDto;
 import dev.vikash.UserService.DTO.UserDto;
 import dev.vikash.UserService.Exception.InvalidCredential;
+import dev.vikash.UserService.Exception.InvalidTokenException;
 import dev.vikash.UserService.Exception.UserNotFoundException;
 import dev.vikash.UserService.Mapper.UserEntityDTOMapper;
 import dev.vikash.UserService.Model.Session;
@@ -10,6 +11,8 @@ import dev.vikash.UserService.Model.SessionStatus;
 import dev.vikash.UserService.Model.User;
 import dev.vikash.UserService.Repository.SessionRepository;
 import dev.vikash.UserService.Repository.UserRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.MacAlgorithm;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,10 +21,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMapAdapter;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import javax.crypto.SecretKey;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 public class AuthService {
@@ -63,7 +65,17 @@ public class AuthService {
         }
 
             //Token Generation
-            String token= RandomStringUtils.randomAlphanumeric(30);
+           // String token= RandomStringUtils.randomAlphanumeric(30);
+        MacAlgorithm alg= Jwts.SIG.HS256;
+        SecretKey key=alg.key().build();
+        Map<String,Object> jsonForJWT =new HashMap<>();
+        jsonForJWT.put("email",user.getEmail());
+        jsonForJWT.put("roles",user.getRoles());
+        jsonForJWT.put("createdAt",new Date());
+        jsonForJWT.put("expiresAt",new Date(LocalDate.now().plusDays(3).toEpochDay()));
+
+        String token=Jwts.builder().claims(jsonForJWT).signWith(key,alg).compact();
+
 
         //Session Control
         Session session =new Session();
@@ -78,7 +90,7 @@ public class AuthService {
         UserDto userDto = UserEntityDTOMapper.getUserDtoFromUserEntity(user);
         //Setting up Header
         MultiValueMapAdapter<String,String> headers=new MultiValueMapAdapter<>(new HashMap<>());
-        headers.add(HttpHeaders.SET_COOKIE,"auth_token"+token);
+        headers.add(HttpHeaders.SET_COOKIE,"auth_token_"+token);
         return new ResponseEntity<>(userDto,headers, HttpStatus.OK);
 
 
@@ -107,5 +119,16 @@ public class AuthService {
         session.setSessionStatus(SessionStatus.ENDED);
         sessionRepository.save(session);
         return ResponseEntity.ok().build();
+    }
+
+    public SessionStatus validate(String token,Long UserId)
+    {
+        Optional<Session> sessionOptional =sessionRepository.findByTokenAndUser_id(token,UserId);
+        if(sessionOptional.isEmpty() ||sessionOptional.get().getSessionStatus().equals(SessionStatus.ENDED))
+        {
+            throw new InvalidTokenException("Invalid Token");
+        }
+
+        return SessionStatus.ACTIVE;
     }
 }
