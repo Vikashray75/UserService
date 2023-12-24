@@ -47,10 +47,10 @@ public class AuthController {
     {
         return authService.logout(token,UserId);
     }
-    @PostMapping("/Validate")
-    public ResponseEntity<SessionStatus> validateToken(ValidateTokenRequestDto request)
+    @PostMapping("/validate/{id}")
+    public ResponseEntity<SessionStatus> validateToken(@PathVariable("id") Long UserId,@RequestHeader("token") String token)
     {
-        SessionStatus sessionStatus=authService.validate(request.getToken(),request.getUserId());
+        SessionStatus sessionStatus=authService.validate(token,UserId);
         return new ResponseEntity<>(sessionStatus,HttpStatus.OK);
     }
 }
