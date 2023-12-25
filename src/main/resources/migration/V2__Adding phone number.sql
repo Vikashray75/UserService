@@ -1,0 +1,1 @@
+ALTER table ecom_user ADD COLUMN phone_number VARCHAR(20);
